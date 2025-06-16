@@ -72,7 +72,7 @@ defmodule ExAws.Request do
                 headers,
                 req_body,
                 stream,
-                attempt_again?(attempt, reason, config)
+                attempt_again?(attempt, reason, :client, config)
               )
 
             {:error, reason} ->
@@ -91,7 +91,7 @@ defmodule ExAws.Request do
             headers,
             req_body,
             stream,
-            attempt_again?(attempt, reason, config)
+            attempt_again?(attempt, reason, :client, config)
           )
 
         {:error, reason_struct} ->
@@ -113,7 +113,7 @@ defmodule ExAws.Request do
             headers,
             req_body,
             stream,
-            attempt_again?(attempt, reason, config)
+            attempt_again?(attempt, reason, :client, config)
           )
       end
     end

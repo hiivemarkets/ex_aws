@@ -29,7 +29,7 @@ defmodule ExAws.RequestTest do
     TelemetryHelper.attach_telemetry([:ex_aws, :request])
 
     ExAws.Request.HttpMock
-    |> expect(:request, fn _method, _url, _body, _headers, _opts -> {:ok, %{status_code: 301}} end)
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream -> {:ok, %{status_code: 301}} end)
 
     http_method = :get
     url = "https://examplebucket.s3.amazonaws.com/test.txt"
@@ -45,6 +45,7 @@ defmodule ExAws.RequestTest do
                         context[:config],
                         context[:headers],
                         request_body,
+                        false,
                         {:attempt, 1}
                       )
            end) =~ "Received redirect, did you specify the correct region?"
@@ -76,7 +77,7 @@ defmodule ExAws.RequestTest do
     expect(
       ExAws.Request.HttpMock,
       :request,
-      fn _method, url, _body, _headers, _opts ->
+      fn _method, url, _body, _headers, _opts, _stream? ->
         assert url == "https://examplebucket.s3.amazonaws.com/test%20hello%20%233.txt?acl=21"
         {:ok, %{status_code: 200}}
       end
@@ -90,6 +91,7 @@ defmodule ExAws.RequestTest do
                context[:config],
                context[:headers],
                request_body,
+               false,
                {:attempt, 1}
              )
 
@@ -118,7 +120,7 @@ defmodule ExAws.RequestTest do
     expect(
       ExAws.Request.HttpMock,
       :request,
-      fn _method, url, _body, _headers, _opts ->
+      fn _method, url, _body, _headers, _opts, _stream? ->
         assert url == "https://examplebucket.s3.amazonaws.com/up//double//test%20hello%2B%233.txt"
         {:ok, %{status_code: 200}}
       end
@@ -132,6 +134,7 @@ defmodule ExAws.RequestTest do
                context[:config],
                context[:headers],
                request_body,
+               false,
                {:attempt, 1}
              )
   end
@@ -153,6 +156,7 @@ defmodule ExAws.RequestTest do
                context[:config],
                context[:headers],
                request_body,
+               false,
                {:attempt, 1}
              )
 
@@ -184,6 +188,7 @@ defmodule ExAws.RequestTest do
                config,
                context[:headers],
                request_body,
+               false,
                {:attempt, 1}
              )
 
@@ -197,7 +202,7 @@ defmodule ExAws.RequestTest do
       "{\"__type\": \"InvalidSequenceTokenException\", \"message\": \"The given sequenceToken is invalid. The next expected sequenceToken is: 49616449618992442982853194240983586320797062450229805234\", \"expectedSequenceToken\": \"49616449618992442982853194240983586320797062450229805234\"}"
 
     ExAws.Request.HttpMock
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream? ->
       {:ok, %{status_code: 400, body: exception}}
     end)
 
@@ -216,13 +221,14 @@ defmodule ExAws.RequestTest do
                context[:config],
                context[:headers],
                request_body,
+               false,
                {:attempt, 1}
              )
   end
 
   test "Retries on errors, when the error reason is a map", context do
     ExAws.Request.HttpMock
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream ->
       {:error, %{reason: :closed}}
     end)
 
@@ -239,13 +245,14 @@ defmodule ExAws.RequestTest do
                context[:config],
                context[:headers],
                request_body,
+               false,
                {:attempt, 5}
              )
   end
 
   test "Retries on errors, when the error reason is a keyword list", context do
     ExAws.Request.HttpMock
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream ->
       {:error, [reason: :closed]}
     end)
 
@@ -262,6 +269,7 @@ defmodule ExAws.RequestTest do
                context[:config],
                context[:headers],
                request_body,
+               false,
                {:attempt, 5}
              )
   end
@@ -285,6 +293,7 @@ defmodule ExAws.RequestTest do
                context[:config],
                context[:headers],
                request_body,
+               false,
                {:attempt, 1}
              )
 
@@ -306,10 +315,10 @@ defmodule ExAws.RequestTest do
       "{\"SequenceNumber\":\"49592207023850419758877078054930583111417627497740632066\",\"ShardId\":\"shardId-000000000000\"}"
 
     ExAws.Request.HttpMock
-    |> expect(:request, success_after_retries, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, success_after_retries, fn _method, _url, _body, _headers, _opts, _stream? ->
       {:ok, %{status_code: 400, body: exception}}
     end)
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream? ->
       {:ok, %{status_code: 200, body: success}}
     end)
 
@@ -323,10 +332,10 @@ defmodule ExAws.RequestTest do
       "{\"User\":{\"Attributes\":[{\"Name\":\"email\",\"Value\":\"user-email@test.com\"}],\"Enabled\":true,\"UserCreateDate\":1.743179259439E9,\"UserLastModifiedDate\":1.743179259439E9,\"UserStatus\":\"FORCE_CHANGE_PASSWORD\",\"Username\":\"f52064a4-3061-7030-581b-ae8392e97edd\"}}"
 
     ExAws.Request.HttpMock
-    |> expect(:request, success_after_retries, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, success_after_retries, fn _method, _url, _body, _headers, _opts, _stream? ->
       {:ok, %{status_code: 400, body: exception}}
     end)
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream? ->
       {:ok, %{status_code: 200, body: success}}
     end)
 

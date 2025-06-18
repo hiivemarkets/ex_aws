@@ -10,7 +10,7 @@ defmodule ExAws.InstanceMetaTest do
     role_name = "dummy-role"
 
     ExAws.Request.HttpMock
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream? ->
       {:ok, %{status_code: 200, body: role_name}}
     end)
 
@@ -48,7 +48,7 @@ defmodule ExAws.InstanceMetaTest do
       role_name = "dummy-role"
 
       ExAws.Request.HttpMock
-      |> expect(:request, fn _method, _url, _body, _headers, opts ->
+      |> expect(:request, fn _method, _url, _body, _headers, opts, _stream? ->
         assert Keyword.get(opts, :pool) == :ex_aws_metadata
         {:ok, %{status_code: 200, body: role_name}}
       end)
@@ -71,13 +71,13 @@ defmodule ExAws.InstanceMetaTest do
       role_name = "dummy-role-imdsv2"
 
       ExAws.Request.HttpMock
-      |> expect(:request, fn :get, _url, _body, _headers, _opts ->
+      |> expect(:request, fn :get, _url, _body, _headers, _opts, _stream? ->
         {:ok, %{status_code: 401, body: ""}}
       end)
-      |> expect(:request, fn :put, _url, _body, _headers, _opts ->
+      |> expect(:request, fn :put, _url, _body, _headers, _opts, _stream? ->
         {:ok, %{status_code: 200, body: "dummy-token"}}
       end)
-      |> expect(:request, fn :get, _url, _body, headers, _opts ->
+      |> expect(:request, fn :get, _url, _body, headers, _opts, _stream? ->
         assert Enum.member?(headers, {"x-aws-ec2-metadata-token", "dummy-token"})
         {:ok, %{status_code: 200, body: role_name}}
       end)
@@ -98,10 +98,10 @@ defmodule ExAws.InstanceMetaTest do
       role_name = "dummy-role-imdsv2"
 
       ExAws.Request.HttpMock
-      |> expect(:request, fn :put, _url, _body, _headers, _opts ->
+      |> expect(:request, fn :put, _url, _body, _headers, _opts, _stream? ->
         {:ok, %{status_code: 200, body: "dummy-token"}}
       end)
-      |> expect(:request, fn :get, _url, _body, headers, _opts ->
+      |> expect(:request, fn :get, _url, _body, headers, _opts, _stream? ->
         assert Enum.member?(headers, {"x-aws-ec2-metadata-token", "dummy-token"})
         {:ok, %{status_code: 200, body: role_name}}
       end)

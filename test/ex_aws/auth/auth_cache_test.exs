@@ -53,7 +53,7 @@ defmodule ExAws.AuthCacheTest do
 
     spawn(fn ->
       ExAws.Request.HttpMock
-      |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+      |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream? ->
         @response
       end)
 
@@ -62,7 +62,7 @@ defmodule ExAws.AuthCacheTest do
     end)
 
     ExAws.Request.HttpMock
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream? ->
       @response
     end)
 
@@ -122,7 +122,7 @@ defmodule ExAws.AuthCacheTest do
     }
 
     ExAws.Request.HttpMock
-    |> expect(:request, fn _method, _url, _body, _headers, _opts ->
+    |> expect(:request, fn _method, _url, _body, _headers, _opts, _stream ->
       @response
     end)
 

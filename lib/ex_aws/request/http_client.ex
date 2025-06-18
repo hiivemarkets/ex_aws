@@ -75,7 +75,8 @@ defmodule ExAws.Request.HttpClient do
               url :: binary,
               req_body :: binary,
               headers :: [{binary, binary}, ...],
-              http_opts :: term
+              http_opts :: term,
+              stream? :: boolean
             ) ::
               {:ok, %{status_code: pos_integer, headers: any}}
               | {:ok, %{status_code: pos_integer, headers: any, body: binary}}
